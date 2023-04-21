@@ -10,7 +10,7 @@ class Settings:
     """
     # 경로 설정값
     MODEL_EXTENSION: str = ".pth"
-    MODEL_PATH: str = os.path.join(app_root_path, "models")
+    MODEL_PATH: str = os.path.join(app_root_path, "model")
     TRAIN_DATA_PATH = os.path.join(app_root_path, r"datas\train")
     TEST_DATA_PATH = os.path.join(app_root_path, r"datas\test")
     RESULT_SAMPLE_PATH = os.path.join(app_root_path, r"datas\sample_submission.csv")
@@ -35,5 +35,6 @@ class Settings:
                     '몰딩수정', '반점', '석고수정', '오염', '오타공', '울음', '이음부불량',
                     '창틀,문틀수정', '터짐', '틈새과다', '피스', '훼손']
 
-
+    # 날짜 형식
+    DATE_FORMAT = "%Y%m%d%H%M"
 settings = Settings()

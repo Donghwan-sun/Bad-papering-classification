@@ -2,7 +2,7 @@ import os
 import torch
 
 from common.config import settings
-
+from models.utils import save_models
 class Trainner:
     def __init__(self, train_dataloader, validation_loader, device, optimizer, model, loss_fn, schedule=None):
         self.epoch = settings.EPOCHS
@@ -76,9 +76,6 @@ class Trainner:
             if self.best_acc < val_accuracy:
                 self.best_acc = val_accuracy
                 best_model = self.model
-                torch.save(best_model, os.path.join(settings.MODEL_PATH,
-                                                    f"{settings.PRETRAINED_VERSION}"
-                                                    f"-{epoch}"
-                                                    f"{settings.MODEL_EXTENSION}"))
+                save_models(best_model, epoch)
 
 
