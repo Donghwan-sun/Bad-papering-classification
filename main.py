@@ -7,7 +7,7 @@ from models import models
 
 if __name__ == "__main__":
     dataloader_dict = dataloader_init()
-    model = models.EfficientNet_pretrain(settings.PRETRAINED_VERSION)
+    model = models.EfficientNetPretrain(settings.PRETRAINED_VERSION)
 
     trainner = Trainner(train_dataloader=dataloader_dict["train"],
                         validation_loader=dataloader_dict["validation"],
