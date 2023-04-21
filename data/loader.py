@@ -1,12 +1,13 @@
 from glob import glob
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader, random_split
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
 from common.config import settings
+from data.preprocess import transform, split_dataset
 
 class CustomDataset(Dataset):
     """
@@ -25,10 +26,12 @@ class CustomDataset(Dataset):
         item = self.dataset[index]
         image = Image.open(item).convert("RGB")
         target = item.split("\\")[-2]
+        target = settings.TARGET.index(target)
 
         if self.transform:
             image = self.transform(image)
-        result = {"image": image, "target": target}
+
+        result = {"image": image, "target": torch.tensor(target, dtype=torch.float16)}
         return result
     def __len__(self):
         return len(self.dataset)
@@ -50,9 +53,44 @@ class DatasetVisualization:
         :return:
         """
         image = self.dataset[index]["image"]
-        img = np.array(image)
-        plt.imshow(img)
+        image = np.asarray(image)
+        image = np.transpose(image, (1, 2, 0))
+        plt.imshow(image)
         plt.show()
-"""
 
-"""
+def dataloader_init():
+    dataloader_dict = {}
+    train_dataset = CustomDataset(settings.TRAIN_DATA_PATH, transform("train"))
+    dataset_dict = split_dataset(len(train_dataset),
+                                 settings.TRAIN_RATIO,
+                                 settings.VALIDATION_RATIO,
+                                 settings.TEST_RATIO)
+    test_dataset = None
+
+    if "test" in list(dataset_dict.keys()):
+        train_dataset, validation_dataset, test_dataset = random_split(train_dataset,
+                                                                       [dataset_dict["train"],
+                                                                        dataset_dict["validation"],
+                                                                        dataset_dict["test"]]
+                                                                       )
+    else:
+        train_dataset, validation_dataset = random_split(train_dataset,
+                                                         [dataset_dict["train"],
+                                                          dataset_dict["validation"]])
+
+    dataloader_dict["train"] = DataLoader(train_dataset,
+                                          batch_size=settings.BATCH_SIZE,
+                                          shuffle=settings.SHUFFLE)
+
+    dataloader_dict["validation"] = DataLoader(validation_dataset,
+                                               batch_size=settings.BATCH_SIZE,
+                                               shuffle=settings.SHUFFLE)
+    if test_dataset:
+        dataloader_dict["test"] = DataLoader(test_dataset,
+                                             batch_size=settings.BATCH_SIZE,
+                                             shuffle=settings.SHUFFLE)
+
+    return dataloader_dict
+
+
+
